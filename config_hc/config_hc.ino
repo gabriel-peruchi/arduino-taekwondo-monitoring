@@ -1,28 +1,41 @@
-//Include the SoftwareSerial library
+/* Biblioteca Serial */
 #include "SoftwareSerial.h"
 
-//Create a new software  serial
-SoftwareSerial bluetooth(10, 11); //TX, RX (Bluetooth)
+/* Comunicação serial Bluetooth RX TX */
+SoftwareSerial bluetooth(10, 11);
 
 void setup() {
-  //Initialize the hardware serial
-  Serial.begin(9600);
-  Serial.println(F("Type the AT commands:"));
+    /* Inicializa a comuniação Serial */
+    Serial.begin(9600);
 
-  //Initialize the software serial
-  bluetooth.begin(115200);
+    Serial.println(F("Digite comandos AT:"));
+
+    /* 
+     *  Inicializa a comunicção serial com o Bluetooth 
+     *  Obs: Verifique a velocidade já configurada do seu módulo
+    */
+    bluetooth.begin(115200);
 }
 
 void loop() {
-  //Check received a byte from hardware serial
-  if (Serial.available()) {
-    char r = Serial.read(); //Read and save the byte
-    bluetooth.print(r);  //Send the byte to bluetooth by software serial
-    Serial.print(r);  //Echo
-  }
-  //Check received a byte from bluetooth by software serial
-  if (bluetooth.available()) {
-    char r = bluetooth.read(); //Read and save the byte
-    Serial.print(r); //Print the byte to hardware serial
-  }
+    /* Verifica se recebeu um byte do serial do hardware */
+    if (Serial.available()) {
+        /* Lê e salve o byte */
+        char r = Serial.read(); 
+
+        /* Envia o byte para o Bluetooth por serial de software */
+        bluetooth.print(r);  
+
+        /* Printa o comando enviado */
+        Serial.print(r);
+    }
+  
+    /* Verifica o byte recebido do bluetooth pelo serial do software */
+    if (bluetooth.available()) {
+        /* Lê e salva o byte */
+        char r = bluetooth.read();
+
+        /* Printa o byte */
+        Serial.print(r); 
+    }
 }
