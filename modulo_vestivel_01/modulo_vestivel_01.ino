@@ -83,30 +83,35 @@ void setup() {
         Fastwire::setup(400, true);
     #endif
 
+    /* Velocidade máxima na comunicação serial */
+    TWBR = 12;
+
     /* Inicializa a comunicação serial */
-    Serial.begin(9600);
+    Serial.begin(115200);
 
     /* Inicializa a comunicação serial Bluetooth */
-    serialBluetooth.begin(9600);
+    serialBluetooth.begin(115200);
     
-    /* Inicializa o dispositivo */
+    /* Inicializa o dispositivo MPU6050 */
     Serial.println("Inicializando dispositivos I2C...");
     accelgyro.initialize();
 
-    /* Intervalo de medição inicial */
-    Serial.print ("Intervalo inicial =");
-    Serial.println (accelgyro.getFullScaleAccelRange());
-    Serial.println (accelgyro.getFullScaleGyroRange());
+    /* Intervalo de medição inicial (Range) */
+    Serial.println("Intervalo inicial (Range)");
+    Serial.print(accelgyro.getFullScaleAccelRange()); Serial.print("\t");
+    Serial.print(accelgyro.getFullScaleGyroRange());
+    Serial.print("\n");
    
     /* Essas linhas definem a escala do acelerômetro para 16g e do giroscópio para 2.000 rads por segundo
      * Essas linhas devem ser colocadas após o método accelgyro.initialize.*/
     accelgyro.setFullScaleAccelRange (MPU6050_ACCEL_FS_16);
     accelgyro.setFullScaleGyroRange (MPU6050_GYRO_FS_2000);
 
-    /* Novo intervalo de medição inicial */
-    Serial.print ("Novo intervalo =");
-    Serial.println (accelgyro.getFullScaleAccelRange());
-    Serial.println (accelgyro.getFullScaleGyroRange());
+    /* Novo intervalo de medição inicial (Range) */
+    Serial.println("Novo intervalo (Range)");
+    Serial.print(accelgyro.getFullScaleAccelRange()); Serial.print("\t");
+    Serial.print(accelgyro.getFullScaleGyroRange()); 
+    Serial.print("\n");
     
     /* Verifica a conexão */
     Serial.println("Testando conexões de dispositivos...");
@@ -123,12 +128,12 @@ void setup() {
     Serial.print("\n");
 
     /* Seta os valores de offset pré calculados */
-    accelgyro.setXGyroOffset(-5);
-    accelgyro.setYGyroOffset(-18);
-    accelgyro.setZGyroOffset(-24);
-    accelgyro.setXAccelOffset(-806);
-    accelgyro.setYAccelOffset(-1242);
-    accelgyro.setZAccelOffset(864);
+    accelgyro.setXGyroOffset(-11);
+    accelgyro.setYGyroOffset(-23);
+    accelgyro.setZGyroOffset(-20);
+    accelgyro.setXAccelOffset(-801);
+    accelgyro.setYAccelOffset(-1229);
+    accelgyro.setZAccelOffset(849);
 
     /* Novos offsets */
     Serial.println("Novos valores de offset");
@@ -142,6 +147,9 @@ void setup() {
 
     /* Tempo de Amostra */
     sampleTime = micros();
+
+    /* Estabilização */
+    delay(300);
 }
 
 void loop() {
@@ -180,26 +188,31 @@ void loop() {
     accelZ =  az / ACCEL_SCALE;
 
     /* Valores de aceleração (g) no tempo (s) */
-    Serial.print(readTime);
-    Serial.print("AccelX : "); 
-    Serial.print(accelX);
-    Serial.print("\tAccelY : "); 
-    Serial.print(accelY);
-    Serial.print("\tAccelZ : "); 
-    Serial.println(accelZ);
+//    Serial.print(millis());
+//    Serial.print("\t"); 
+//    Serial.print(readTime, 4);
+//    Serial.print("AccelX : "); 
+//    Serial.print(accelX);
+//    Serial.print("\tAccelY : "); 
+//    Serial.print(accelY);
+//    Serial.print("\tAccelZ : "); 
+//    Serial.println(accelZ);
 
     /* Enviar dados ao App */
     if(sendData == 1){
+      String dataAccel = "";
+
       /* Protocolo */
-      serialBluetooth.print("a");
-      serialBluetooth.print("{");
-      serialBluetooth.print(readTime);
-      serialBluetooth.print("|");
-      serialBluetooth.print(accelX);
-      serialBluetooth.print("|");
-      serialBluetooth.print(accelY);
-      serialBluetooth.print("|");
-      serialBluetooth.print(accelZ);
-      serialBluetooth.print("}");
+      dataAccel.concat("a{");
+      dataAccel.concat(String(readTime, 4)); // Precisão dos segundos em 4 casas decimais
+      dataAccel.concat("|");
+      dataAccel.concat(accelX);
+      dataAccel.concat("|");
+      dataAccel.concat(accelY);
+      dataAccel.concat("|");
+      dataAccel.concat(accelZ);
+      dataAccel.concat("}");
+      
+      serialBluetooth.print(dataAccel);
     }
 }
