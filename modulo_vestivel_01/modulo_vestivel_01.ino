@@ -87,10 +87,10 @@ void setup() {
     TWBR = 12;
 
     /* Inicializa a comunicação serial */
-    Serial.begin(115200);
+    Serial.begin(57600);
 
     /* Inicializa a comunicação serial Bluetooth */
-    serialBluetooth.begin(115200);
+    serialBluetooth.begin(57600);
     
     /* Inicializa o dispositivo MPU6050 */
     Serial.println("Inicializando dispositivos I2C...");
@@ -156,16 +156,21 @@ void loop() {
 
     /* Comando recebido pelo App */
     String comando = "";
-
+    
     /* Bluetooth recebendo informação */
-    if(serialBluetooth.available()){
+    if(serialBluetooth.available() > 0){
       /* Lê a informação enquanto estiver recebendo (Pode receber em partes) */
-      while(serialBluetooth.available()){
+      while(serialBluetooth.available() > 0){
         char caracter = serialBluetooth.read();
         comando += caracter;
-        delay(10);
+        delay(100);
       }
-      sendData = comando.toInt();
+
+      if(comando.toInt() == 0 || comando.toInt() == 1){
+        sendData = comando.toInt();
+      } else {
+        sendData = sendData == 0 ? 1 : 0;  
+      }
     }
     
     /* Leitura das medições brutas de aceleração / giroscópio do MPU6050 */

@@ -14,7 +14,7 @@ void setup() {
      *  Inicializa a comunicção serial com o Bluetooth 
      *  Obs: Verifique a velocidade já configurada do seu módulo
     */
-    bluetooth.begin(115200);
+    bluetooth.begin(57600);
 }
 
 void loop() {
